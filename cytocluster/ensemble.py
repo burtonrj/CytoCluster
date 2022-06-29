@@ -11,7 +11,7 @@ import hdmedians as hd
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from ClusterEnsembles import ClusterEnsembles
+from ensembleclustering.ClusterEnsembles import cluster_ensembles
 from joblib import delayed
 from joblib import Parallel
 from matplotlib import pyplot as plt
@@ -520,15 +520,15 @@ class EnsembleClustering(Clustering):
         labels = labels if labels is not None else self._reconstruct_labels(encoded=True)
         if consensus_method == "cspa" and self.data.shape[0] > 5000:
             logger.warning("CSPA is not recommended when n>5000, consider a different method")
-            self.data["cluster_label"] = ClusterEnsembles.cspa(labels, nclass=k)
+            self.data["cluster_label"] = cluster_ensembles(labels, nclass=k, solver="cspa")
         elif consensus_method == "hgpa":
-            self.data["cluster_label"] = ClusterEnsembles.hgpa(labels, nclass=k, random_state=random_state)
+            self.data["cluster_label"] = cluster_ensembles(labels, nclass=k, random_state=random_state, solver="hgpa")
         elif consensus_method == "mcla":
-            self.data["cluster_label"] = ClusterEnsembles.mcla(labels, nclass=k, random_state=random_state)
+            self.data["cluster_label"] = cluster_ensembles(labels, nclass=k, random_state=random_state, solver="mcla")
         elif consensus_method == "hbgf":
-            self.data["cluster_label"] = ClusterEnsembles.hbgf(labels, nclass=k)
+            self.data["cluster_label"] = cluster_ensembles(labels, nclass=k, solver="hbgf")
         elif consensus_method == "nmf":
-            self.data["cluster_label"] = ClusterEnsembles.nmf(labels, nclass=k, random_state=random_state)
+            self.data["cluster_label"] = cluster_ensembles(labels, nclass=k, random_state=random_state, solver="nmf")
         else:
             raise ValueError("Invalid consensus method, must be one of: cspa, hgpa, mcla, hbgf, or nmf")
 

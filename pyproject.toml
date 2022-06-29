@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "cytocluster"
 version = "0.1.0"
-description = ""
+description = "A package for clustering high-dimensional cytometry data in Python."
 authors = ["burtonrj <burtonrj@cardiff.ac.uk>"]
 
 [tool.poetry.dependencies]
@@ -12,10 +12,10 @@ cytoplots = "^0.1.0"
 hdmedians = "^0.14.2"
 MiniSom = "^2.3.0"
 hnswlib = "^0.6.2"
-clusterensembles = {git = "https://github.com/827916600/ClusterEnsembles.git", rev = "main"}
 PhenoGraph = "^1.5.7"
 jupyter = "^1.0.0"
 ipython = "^8.4.0"
+ensembleclustering = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 
