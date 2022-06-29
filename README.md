@@ -24,7 +24,13 @@ CytoCluster is now a standalone package that provides functions and classes for:
 * Plotting and visualising clustering results.
 * Ensemble clustering for combining the results of many clustering algorithms into consensus clusters.
 
-For more information, check the full documentation here:
+Examples of using the CytoCluster package are provided in the example notebooks (see notebooks folder in this repo).
+
+## Installation
+
+``
+pip install cytocluster
+``
 
 ---
 ## Release Notes

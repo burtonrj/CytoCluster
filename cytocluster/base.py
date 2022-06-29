@@ -1,3 +1,29 @@
+#!/usr/bin.env/python
+# -*- coding: utf-8 -*-
+"""
+All clustering objects inherit from the Clustering class which provides tools for visualising cluster results.
+
+Copyright 2022 Ross Burton
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without restriction,
+including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the
+Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+"""
+
 import math
 from collections import defaultdict
 
@@ -24,7 +50,19 @@ from cytocluster.plotting import plot_meta_clusters, clustered_heatmap, boxswarm
 logger = logging.getLogger(__name__)
 
 
-def simpson_di(cluster_counts: Dict[str, int]):
+def simpson_di(cluster_counts: Dict[str, int]) -> float:
+    """
+    Calculate the simpson diversity index for clusters of N subjects.
+
+    Parameters
+    ----------
+    cluster_counts: Dict[str, int]
+        Key should correspond to cluster name and value the unique number of subjects within that cluster.
+
+    Returns
+    -------
+    float
+    """
     N = sum(cluster_counts.values())
     cluster_counts = {k: v for k, v in cluster_counts.items() if v != 0}
     return sum((float(n) / N) ** 2 for n in cluster_counts.values())
@@ -55,11 +93,29 @@ def remove_null_features(data: pd.DataFrame, features: Optional[List[str]] = Non
 
 
 class Clustering:
+    """
+    Base class for clustering helper objects (see single and ensemble modules). Provides access to high level
+    methods for visualisation and interrogation of clustering results.
+
+    Parameters
+    ----------
+    data: Pandas.DataFrame
+        Input space for clustering
+    features: List[str]
+        Names of columns in data to be treated as features in clustering
+    verbose: bool (default=True)
+        Provide progress bars as feedback
+    random_state: int (default=42)
+    n_sources: Dict, optional
+    pre_embedded: bool (default=False)
+        Set True if dimension reduction already performed on data and latent variables are stored in columns
+    labels: Dict[str, Union[pd.Series, np.ndarray]], optional
+        Only required for ensemble clustering - should contain the labels from base clusterings
+    """
     def __init__(
         self,
         data: pd.DataFrame,
         features: List[str],
-        sample_ids: Optional[List[str]] = None,
         verbose: bool = True,
         random_state: int = 42,
         n_sources: Optional[Dict] = None,
@@ -69,11 +125,11 @@ class Clustering:
         np.random.seed(random_state)
         self.verbose = verbose
         self.features = features
-        self.sample_ids = sample_ids
         self.data = data
         self._embedding_cache = None
         self._n_sources = n_sources or {}
         self.pre_embedded = pre_embedded
+        self.labels = labels
 
     def __repr__(self):
         return (
@@ -89,12 +145,32 @@ class Clustering:
         cls,
         data: pd.DataFrame,
         features: list,
-        sample_ids: list or None = None,
         verbose: bool = True,
         random_state: int = 42,
         pre_embedded: bool = False,
         labels: Optional[Dict[str, Union[pd.Series, np.ndarray]]] = None
     ):
+        """
+        Generate a new Clustering object from a DataFrame
+
+        Parameters
+        ----------
+        data: Pandas.DataFrame
+        Input space for clustering
+        features: List[str]
+            Names of columns in data to be treated as features in clustering
+        verbose: bool (default=True)
+            Provide progress bars as feedback
+        random_state: int (default=42)
+        pre_embedded: bool (default=False)
+            Set True if dimension reduction already performed on data and latent variables are stored in columns
+        labels: Dict[str, Union[pd.Series, np.ndarray]], optional
+            Only required for ensemble clustering - should contain the labels from base clusterings
+
+        Returns
+        -------
+        New Clustering object
+        """
         if "sample_id" not in data.columns.values:
             raise ValueError("Data missing 'sample_id' column,")
         n_sources = None
@@ -111,7 +187,6 @@ class Clustering:
         return cls(
             data=data.copy(),
             features=features,
-            sample_ids=sample_ids,
             verbose=verbose,
             random_state=random_state,
             n_sources=n_sources,
@@ -124,11 +199,39 @@ class Clustering:
             features: List[str],
             scale: TransformerMixin
     ) -> Tuple[pd.DataFrame, TransformerMixin]:
+        """
+        Scale features using some Scikit-Learn transformer
+
+        Parameters
+        ----------
+        features: List[str]
+        scale: Scikit-Learn transformer e.g. MinMaxScaler
+
+        Returns
+        -------
+        Pandas.DataFrame, Scaling object
+        """
         data = self.data.copy()
         data[features] = scale.fit_transform(self.data[features])
         return data, scale
 
     def transform_features(self, method: str, features: Optional[List[str]] = None, **kwargs):
+        """
+        Apply a transformation to the features e.g. Logicle or Arcsine transform.
+
+        Parameters
+        ----------
+        method: str
+            Valid methods include asinh, logicle, hyperlog, or log
+        features: List[str], optional
+            Defaults to features specified on construction
+        kwargs
+            Additional keyword arguments passed to transform
+
+        Returns
+        -------
+        None
+        """
         features = features or self.features
         self.data = apply_transform(data=self.data, features=features, method=method, **kwargs)
 
@@ -176,6 +279,32 @@ class Clustering:
         random_state: int = 42,
         **dim_reduction_kwargs,
     ):
+        """
+        Perform and cache dimension reduction. The results are cached as a pandas dataframe, which is optionally
+        a sample of the original data.
+
+        Parameters
+        ----------
+        n: int, optional
+            Optional size of sample of data to perform dimension reduction on
+        sample_id: str, optional
+            Optional sample_id to perform dimension reduction on
+        overwrite_cache: bool (default=False)
+            If True, replace existing cached results, otherwise return cached results if available for selected method
+        method: str (default="UMAP")
+            Dimension reduction method to use e.g. umap, phate, or tsne - see cytotools.dimension_reduction
+        replace: bool (default=False)
+            Sample with replacement
+        weights: Iterable, optional
+            Weights for sampling
+        random_state: int (default=42)
+        dim_reduction_kwargs
+            Additional keyword arguments passed to DimensionReduction object
+
+        Returns
+        -------
+        Pandas.DataFrame
+        """
         dim_reduction_kwargs = dim_reduction_kwargs or {}
         dim_reduction_kwargs["n_components"] = dim_reduction_kwargs.get("n_components", 2)
         if self.pre_embedded:
@@ -229,6 +358,35 @@ class Clustering:
         plot_n: Optional[int] = None,
         **plot_kwargs,
     ):
+        """
+        Plot a two dimension density plot in some embedded space using dimension reduction. This calls the
+        'dimension_reduction' method and will use cache results if available for the chosen method or if
+        'overwrite_cache' is True.
+
+        Parameters
+        ----------
+        n: int, optional
+            Optional size of sample of data to perform dimension reduction on
+        sample_id: str, optional
+            Optional sample_id to perform dimension reduction on
+        overwrite_cache: bool (default=False)
+            If True, replace existing cached results, otherwise return cached results if available for selected method
+        method: str (default="UMAP")
+            Dimension reduction method to use e.g. umap, phate, or tsne - see cytotools.dimension_reduction
+        dim_reduction_kwargs
+            Additional keyword arguments passed to DimensionReduction object
+        subset: str, optional
+            String value passed to 'query' method of the Pandas.DataFrame stored in 'data', use this to subset
+            data prior to plotting
+        plot_n: int, optional
+            Downsample data further prior to plotting
+        plot_kwargs
+            Additional keyword arguments passed to 'density_plot' function
+
+        Returns
+        -------
+        matplotlib.Figure
+        """
         dim_reduction_kwargs = dim_reduction_kwargs or {}
         data = self.dimension_reduction(
             n=n, sample_id=sample_id, overwrite_cache=overwrite_cache, method=method, **dim_reduction_kwargs
@@ -251,6 +409,38 @@ class Clustering:
         subset: Optional[str] = None,
         **plot_kwargs,
     ):
+        """
+        Plot a two dimension plot in some embedded space using dimension reduction. This calls the
+        'dimension_reduction' method and will use cache results if available for the chosen method or if
+        'overwrite_cache' is True. Data points are coloured using some 'label' that should correspond
+        to a column in 'data'.
+
+        Parameters
+        ----------
+        label: str
+            Name of column to use to colour data points
+        discrete: bool (default=True)
+            Should the label be treated as a discrete variable?
+        n: int, optional
+            Optional size of sample of data to perform dimension reduction on
+        sample_id: str, optional
+            Optional sample_id to perform dimension reduction on
+        overwrite_cache: bool (default=False)
+            If True, replace existing cached results, otherwise return cached results if available for selected method
+        method: str (default="UMAP")
+            Dimension reduction method to use e.g. umap, phate, or tsne - see cytotools.dimension_reduction
+        dim_reduction_kwargs
+            Additional keyword arguments passed to DimensionReduction object
+        subset: str, optional
+            String value passed to 'query' method of the Pandas.DataFrame stored in 'data', use this to subset
+            data prior to plotting
+        plot_kwargs
+            Additional keyword arguments passed to 'density_plot' function
+
+        Returns
+        -------
+        matplotlib.Figure
+        """
         dim_reduction_kwargs = dim_reduction_kwargs or {}
         data = self.dimension_reduction(
             n=n, sample_id=sample_id, overwrite_cache=overwrite_cache, method=method, **dim_reduction_kwargs
@@ -269,6 +459,32 @@ class Clustering:
         subset: Optional[str] = None,
         **plot_kwargs,
     ):
+        """
+        Same as the plot function but defaults to using the 'cluster_label' as 'label' for colouring data points.
+        Assumes clustering has been performed and 'cluster_label' column has been populated.
+
+        Parameters
+        ----------
+        n: int, optional
+            Optional size of sample of data to perform dimension reduction on
+        sample_id: str, optional
+            Optional sample_id to perform dimension reduction on
+        overwrite_cache: bool (default=False)
+            If True, replace existing cached results, otherwise return cached results if available for selected method
+        method: str (default="UMAP")
+            Dimension reduction method to use e.g. umap, phate, or tsne - see cytotools.dimension_reduction
+        dim_reduction_kwargs
+            Additional keyword arguments passed to DimensionReduction object
+        subset: str, optional
+            String value passed to 'query' method of the Pandas.DataFrame stored in 'data', use this to subset
+            data prior to plotting
+        plot_kwargs
+            Additional keyword arguments passed to 'scatterplot' function
+
+        Returns
+        -------
+        matplotlib.Figure
+        """
         dim_reduction_kwargs = dim_reduction_kwargs or {}
         data = self.dimension_reduction(
             n=n, sample_id=sample_id, overwrite_cache=overwrite_cache, method=method, **dim_reduction_kwargs
@@ -289,6 +505,31 @@ class Clustering:
         subset: Optional[str] = None,
         **kwargs,
     ):
+        """
+        Plot each cluster as a data point in embedded space (uses the dimension_reduction method to generate embeddings).
+        Each cluster can be coloured by some label, by default it assumes meta-clustering has been performed and will
+        colour data points using the 'meta_label' column.
+
+        Parameters
+        ----------
+        label: str (default='meta_label')
+            Name of column to use to colour data points
+        discrete: bool (default=True)
+            Should the label be treated as a discrete variable?
+        method: str (default="UMAP")
+            Dimension reduction method to use e.g. umap, phate, or tsne - see cytotools.dimension_reduction
+        dim_reduction_kwargs
+            Additional keyword arguments passed to DimensionReduction object
+        subset: str, optional
+            String value passed to 'query' method of the Pandas.DataFrame stored in 'data', use this to subset
+            data prior to plotting
+        kwargs
+            Additional keyword arguments passed to 'plot_meta_clusters' function
+
+        Returns
+        -------
+        matplotlib.Figure
+        """
         if "meta_label" not in self.data.columns:
             raise KeyError("Meta-clustering has not been performed")
         data = self.data
@@ -306,14 +547,39 @@ class Clustering:
 
     def heatmap(
         self,
-        features: Optional[str] = None,
+        features: Optional[List[str]] = None,
         sample_id: Optional[str] = None,
         meta_label: bool = False,
         include_labels: Optional[List[str]] = None,
         subset: Optional[str] = None,
-        plot_orientation="vertical",
+        plot_orientation: str = "vertical",
         **kwargs,
     ):
+        """
+        Generate a heatmap of cluster phenotypes. Defaults to using the 'cluster_label' column for clusters unless
+        'meta_label' is True.
+
+        Parameters
+        ----------
+        features: List[str], optional
+            List of columns to use as features in heatmaps, defaults to 'features' attribute
+        sample_id: str, optional
+            Just display phenotypes for one sample_id
+        meta_label: bool (default=False)
+            Use 'meta_label' column for clusters
+        include_labels: List[str], optional
+            Filter the clusters to only include these labels
+        subset: str, optional
+            String value passed to 'query' method of the Pandas.DataFrame stored in 'data', use this to subset
+            data prior to plotting
+        plot_orientation: str (default='vertical')
+        kwargs:
+            Additional keyword arguments passed to cytocluster.plotting.clustered_heatmap
+
+        Returns
+        -------
+        Seaborn.ClusterGrid
+        """
         features = features or self.features
         data = self.data.copy()
         if subset:
@@ -362,6 +628,18 @@ class Clustering:
     def simpsons_diversity_index(
         self, groupby: str = "cluster_label", cell_identifier: str = "sample_id"
     ) -> pd.DataFrame:
+        """
+        Generate a dataframe of simpson diversity index for each cluster
+
+        Parameters
+        ----------
+        groupby: str (default="cluster_label")
+        cell_identifier: str (default="sample_id")
+
+        Returns
+        -------
+        Pandas.DataFrame
+        """
         sdi = {}
         for cid, df in self.data.groupby(groupby):
             sdi[cid] = simpson_di(df[cell_identifier].value_counts().to_dict())
@@ -372,6 +650,20 @@ class Clustering:
     def plot_simpsons_diversity_index(
         self, groupby: str = "cluster_label", cell_identifier: str = "sample_id", **bar_plot_kwargs
     ):
+        """
+        Generates a bar plot of simpsons diversity index for each cluster
+
+        Parameters
+        ----------
+        groupby: str (default="cluster_label")
+        cell_identifier: str (default="sample_id")
+        bar_plot_kwargs:
+            Passed to Seaborn.barplot
+
+        Returns
+        -------
+        Matplotlib.Axes
+        """
         sdi = self.simpsons_diversity_index(groupby, cell_identifier)
         sdi = sdi.sort_values("Simpson's Diversity Index")
 
