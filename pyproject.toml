@@ -1,13 +1,19 @@
 [tool.poetry]
 name = "cytocluster"
-version = "0.1.0"
+version = "0.1.1"
 description = "A package for clustering high-dimensional cytometry data in Python."
 authors = ["burtonrj <burtonrj@cardiff.ac.uk>"]
+exclude = [
+    "cytocluster/tests/assets/levine32.csv",
+    "cytocluster/tests/assets/test.fcs",
+    "cytocluster/tests/assets/panel.xlsx",
+    "cytocluster/tests/assets/population_names_Levine_32dim.txt"
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 pandas = "^1.4.3"
-cytotools = "^0.1.1"
+cytotools = "^0.1.21"
 cytoplots = "^0.1.0"
 hdmedians = "^0.14.2"
 MiniSom = "^2.3.0"
@@ -15,7 +21,7 @@ hnswlib = "^0.6.2"
 PhenoGraph = "^1.5.7"
 jupyter = "^1.0.0"
 ipython = "^8.4.0"
-ensembleclustering = "^1.0.1"
+ensembleclustering = "^1.0.11"
 
 [tool.poetry.dev-dependencies]
 
