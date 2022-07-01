@@ -710,7 +710,7 @@ test-musl = ["networkx (>=2.5)", "pytest (>=7.0.1)"]
 
 [[package]]
 name = "imagesize"
-version = "1.4.0"
+version = "1.4.1"
 description = "Getting image size from png/jpeg/jpeg2000/gif file"
 category = "main"
 optional = false
@@ -1121,7 +1121,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "nbclient"
-version = "0.6.5"
+version = "0.6.6"
 description = "A client library for executing notebooks. Formerly nbconvert's ExecutePreprocessor."
 category = "main"
 optional = false
@@ -1916,7 +1916,7 @@ win32 = ["pywin32"]
 
 [[package]]
 name = "setuptools-scm"
-version = "7.0.3"
+version = "7.0.4"
 description = "the blessed package to manage your versions by scm tags"
 category = "main"
 optional = false
@@ -2980,9 +2980,8 @@ igraph = [
     {file = "igraph-0.9.11.tar.gz", hash = "sha256:52eeaf5c015e297d979fefc53038fbaaf5fff4fb5f5022dce43f3ddc78210515"},
 ]
 imagesize = [
-    {file = "imagesize-1.4.0-py2.py3-none-any.whl", hash = "sha256:4d19f022f0e38e0391e6cdebd8a28b0a7733a787482490e9d056457b97eff861"},
-    {file = "imagesize-1.4.0-py3.10.egg", hash = "sha256:9433e27ec98545b2770f05b5a93d5bb3a8ee10c28ad01225cea91af1ac209335"},
-    {file = "imagesize-1.4.0.tar.gz", hash = "sha256:6ed6ac091716f0a6f1f60f3743069c6dc4c1d8a8e8817f4d7a6976cf3fbb2548"},
+    {file = "imagesize-1.4.1-py2.py3-none-any.whl", hash = "sha256:0d8d18d08f840c19d0ee7ca1fd82490fdc3729b7ac93f49870406ddde8ef8d8b"},
+    {file = "imagesize-1.4.1.tar.gz", hash = "sha256:69150444affb9cb0d5cc5a92b3676f0b2fb7cd9ae39e947a5e11a36b4497cd4a"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-4.12.0-py3-none-any.whl", hash = "sha256:7401a975809ea1fdc658c3aa4f78cc2195a0e019c5cbc4c06122884e9ae80c23"},
@@ -3379,8 +3378,8 @@ multimethod = [
     {file = "multimethod-1.8.tar.gz", hash = "sha256:10f79f40c35c7cc87c40efa753960900429705e0c08078a084136cb8ce67b840"},
 ]
 nbclient = [
-    {file = "nbclient-0.6.5-py3-none-any.whl", hash = "sha256:c0a942c8e68e2883cfa0ae73d85e88e50a5f58a8d68c4ed5343e76c184a61ff7"},
-    {file = "nbclient-0.6.5.tar.gz", hash = "sha256:9565739f326a9148553b04efa387ccce84c4acd0e57d94daeea4b8efb50ea966"},
+    {file = "nbclient-0.6.6-py3-none-any.whl", hash = "sha256:09bae4ea2df79fa6bc50aeb8278d8b79d2036792824337fa6eee834afae17312"},
+    {file = "nbclient-0.6.6.tar.gz", hash = "sha256:0df76a7961d99a681b4796c74a1f2553b9f998851acc01896dce064ad19a9027"},
 ]
 nbconvert = [
     {file = "nbconvert-6.5.0-py3-none-any.whl", hash = "sha256:c56dd0b8978a1811a5654f74c727ff16ca87dd5a43abd435a1c49b840fcd8360"},
@@ -3949,8 +3948,8 @@ send2trash = [
     {file = "Send2Trash-1.8.0.tar.gz", hash = "sha256:d2c24762fd3759860a0aff155e45871447ea58d2be6bdd39b5c8f966a0c99c2d"},
 ]
 setuptools-scm = [
-    {file = "setuptools_scm-7.0.3-py3-none-any.whl", hash = "sha256:7934c856b042199eb44e1523b46abb881726b7d61b3c9b41a756e4ffb4adf73b"},
-    {file = "setuptools_scm-7.0.3.tar.gz", hash = "sha256:cf8ab8e235bed840cd4559b658af0d8e8a70896a191bbc510ee914ec5325332d"},
+    {file = "setuptools_scm-7.0.4-py3-none-any.whl", hash = "sha256:53a6f51451a84d891ca485cec700a802413bbc5e76ee65da134e54c733a6e44d"},
+    {file = "setuptools_scm-7.0.4.tar.gz", hash = "sha256:c27bc1f48593cfc9527251f1f0fc41ce282ea57bbc7fd5a1ea3acb99325fab4c"},
 ]
 shapely = [
     {file = "Shapely-1.8.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:7c9e3400b716c51ba43eea1678c28272580114e009b6c78cdd00c44df3e325fa"},

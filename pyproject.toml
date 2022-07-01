@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cytocluster"
-version = "0.1.1"
+version = "0.1.11"
 description = "A package for clustering high-dimensional cytometry data in Python."
 authors = ["burtonrj <burtonrj@cardiff.ac.uk>"]
 exclude = [

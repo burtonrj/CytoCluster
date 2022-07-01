@@ -119,12 +119,13 @@ class EnsembleClustering(Clustering):
             self,
             data: pd.DataFrame,
             features: List[str],
-            labels: Dict[str, Union[pd.Series, np.ndarray]],
-            ignore_clusters: Optional[List[str]] = None,
-            *args,
-            **kwargs
+            verbose: bool = True,
+            random_state: int = 42,
+            n_sources: Optional[Dict] = None,
+            pre_embedded: bool = False,
+            labels: Optional[Dict[str, Union[pd.Series, np.ndarray]]] = None
     ):
-        super().__init__(data, features, *args, **kwargs)
+        super().__init__(data, features, verbose, random_state, n_sources, pre_embedded, labels)
         self.original_cluster_labels = labels
         cluster_membership = pd.concat(
             [
@@ -133,8 +134,6 @@ class EnsembleClustering(Clustering):
             ],
             axis=1
         )
-        if ignore_clusters:
-            cluster_membership.drop(ignore_clusters, axis=1, inplace=True)
         self.data = pd.concat([self.data, cluster_membership], axis=1)
         self.clusters = cluster_membership.columns.tolist()
         self._cluster_weights = {}
