@@ -67,7 +67,7 @@ def majority_vote_with_distortion_score_weighting(
                 cc_data.shape[0],
             ]
         )
-    if len(set([x[1] for x in consensus_clusters])) == 1:
+    if len(set([x[1] for x in consensus_cluster_score])) == 1:
         # All consensus clusters have equal scores, return consensus cluster label with the greatest number of votes
         return sorted(consensus_cluster_score, key=lambda x: x[2])[::-1][0][0]
     # Return consensus cluster label with the highest score
@@ -88,7 +88,7 @@ def majority_vote_with_distance_weighting(
     for cid, cc_data in consensus_clusters.loc[clusters].groupby("cluster_label"):
         scores = sum([getattr(distance, metric)(row[features], cc_row[features]) for _, cc_row in cc_data.iterrows()])
         consensus_cluster_score.append([cid, cc_data.shape[0] / (scores / cc_data.shape[0]), cc_data.shape[0]])
-    if len(set([x[1] for x in consensus_clusters])) == 1:
+    if len(set([x[1] for x in consensus_cluster_score])) == 1:
         # All consensus clusters have equal scores, return consensus cluster label with the greatest number of votes
         return sorted(consensus_cluster_score, key=lambda x: x[2])[::-1][0][0]
     # Return consensus cluster label with the highest score
