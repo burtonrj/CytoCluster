@@ -8,4 +8,5 @@ coverage
 *.bin
 *.weights
 *.tree
+poetry.lock
 notebooks/.ipynb_checkpoints
