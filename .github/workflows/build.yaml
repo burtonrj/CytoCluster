@@ -3,7 +3,7 @@ name: CytoCluster Build
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   test:
