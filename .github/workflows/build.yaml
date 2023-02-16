@@ -1,6 +1,9 @@
 name: CytoCluster Build
 
-on: push
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   test:

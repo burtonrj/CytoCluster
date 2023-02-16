@@ -9,6 +9,9 @@ exclude = [
     "cytocluster/tests/assets/panel.xlsx",
     "cytocluster/tests/assets/population_names_Levine_32dim.txt"
 ]
+readme = "README.md"
+homepage = "https://github.com/burtonrj/CytoCluster"
+repository = "https://github.com/burtonrj/CytoCluster"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -21,9 +24,8 @@ hnswlib = "^0.6.2"
 PhenoGraph = "^1.5.7"
 jupyter = "^1.0.0"
 ipython = "^8.4.0"
-ensembleclustering = "^1.0.11"
+ensembleclustering = "1.0.2"
 llvmlite = "^0.39"
-kahypar = "1.1.3"
 
 [tool.poetry.dev-dependencies]
 
