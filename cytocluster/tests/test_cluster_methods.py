@@ -42,6 +42,7 @@ FEATURES = [
     "CD41"
 ]
 
+
 @pytest.fixture()
 def dummy_data():
     return polars_to_pandas(read_from_disk(f"{assets.__path__._path[0]}/levine32.csv")).sample(n=1000)
@@ -55,7 +56,6 @@ def dummy_data_samples():
         df["sample_id"] = f"sample_{i}"
         data.append(df)
     return pd.concat(data).reset_index(drop=True)
-
 
 @pytest.mark.parametrize(
     "method,params",
